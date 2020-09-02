@@ -8,5 +8,6 @@ skills varchar(255)
 SELECT name FROM techjobs.employer WHERE employer.location = 'St. Louis City';
 
 ## Part 3: Test it with SQL
+DROP TABLE techjobs.employer;
 
 ## Part 4: Test it with SQL
