@@ -2,7 +2,10 @@ package org.launchcode.javawebdevtechjobspersistent.controllers;
 
 import org.launchcode.javawebdevtechjobspersistent.models.Employer;
 import org.launchcode.javawebdevtechjobspersistent.models.Job;
+import org.launchcode.javawebdevtechjobspersistent.models.Skill;
 import org.launchcode.javawebdevtechjobspersistent.models.data.EmployerRepository;
+import org.launchcode.javawebdevtechjobspersistent.models.data.JobRepository;
+import org.launchcode.javawebdevtechjobspersistent.models.data.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +25,12 @@ public class HomeController {
     @Autowired
     private EmployerRepository employerRepository;
 
+    @Autowired
+    private SkillRepository skillRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
+
     @RequestMapping("")
     public String index(Model model) {
         model.addAttribute("title", "My Jobs");
@@ -33,6 +42,7 @@ public class HomeController {
         model.addAttribute("title", "Add Job");
         model.addAttribute(new Job());
         model.addAttribute("employers", employerRepository.findAll());
+        model.addAttribute("skills", skillRepository.findAll());
         return "add";
     }
 
@@ -48,25 +58,25 @@ public class HomeController {
             return "add";
         }
         Optional<Employer> employer = employerRepository.findById(employerId);
+        List<Skill> skillList = (List<Skill>) skillRepository.findAllById(skills);
+        if(employer.isEmpty() || skillList.isEmpty()){
+            model.addAttribute("title", "Add Job");
+            return "add";
+        }
+        newJob.setEmployer(employer.get());
+        newJob.setSkills(skillList);
+        jobRepository.save(newJob);
         return "redirect:";
     }
 
     @GetMapping("view/{jobId}")
     public String displayViewJob(Model model, @PathVariable int jobId) {
+        Optional<Job> job = jobRepository.findById(jobId);
+        if(job.isEmpty()){
+            return "Job Id doesn't exist";
+        }
+        model.addAttribute("job", job.get());
         return "view";
     }
 
 }
-/*
-A user will select an employer when they create a job. Add the employer data from employerRepository into the
-form template. The add job form already includes an employer selection option. Be sure your variable name for
-the employer data matches that already used in templates/add.
-Checkout templates/add.html. Make a mental note of the name of the variable being used to pass the selected
-employer id on form submission.
-In processAddJobForm, add a parameter to the method to pass in the template variable you just found.
-You’ll need to use the @RequestParam annotation on this parameter.
-
-Still in processAddJobForm, add code inside of this method to select the employer object that has been chosen to
-be affiliated with the new job. You will need to select the employer using the request parameter you’ve added to
-the method.
- */
