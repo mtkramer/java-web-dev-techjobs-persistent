@@ -66,7 +66,8 @@ public class HomeController {
         newJob.setEmployer(employer.get());
         newJob.setSkills(skillList);
         jobRepository.save(newJob);
-        return "redirect:";
+        model.addAttribute("job", newJob);
+        return "view";
     }
 
     @GetMapping("view/{jobId}")
